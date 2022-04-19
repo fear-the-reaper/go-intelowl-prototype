@@ -1,0 +1,36 @@
+name: CICD
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setting up the Go environment
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: Install dependencies
+      run: |
+        go version
+        go get -u golang.org/x/lint/golint
+
+    - name: Build the SDK
+      run: go build -v ./...
+
+    - name: Run vet & lint
+      run: |
+        go vet .
+        golint .
+
+    - name: Unit Test
+      run: go test -v <path_to_unit_test>
+
+    - name: Integration tests
+      run: go test -v --tags integration
